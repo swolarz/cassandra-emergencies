@@ -1,0 +1,22 @@
+version: "3"
+
+
+services:
+    cassy:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_LISTEN_ADDRESS: "cassy"
+        volumes:
+            - cassandra_data:/var/lib/cassandra
+        networks:
+            - cluster_net
+        ports:
+            - 7000:7000
+            - 9042:9042
+
+volumes:
+    cassandra_data:
+
+networks:
+    cluster_net:
+
