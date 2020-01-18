@@ -1,7 +1,7 @@
-package pl.put.srds.EmergenciesClient;
+package pl.put.srds.emergenciesclient;
 
 
-import pl.put.srds.EmergenciesClient.grpc.EmergenciesCoordinatorClient;
+import pl.put.srds.emergenciesclient.grpc.EmergenciesCoordinatorClient;
 
 public class EmergenciesClientApplication {
     public static void main(String[] args) throws InterruptedException {

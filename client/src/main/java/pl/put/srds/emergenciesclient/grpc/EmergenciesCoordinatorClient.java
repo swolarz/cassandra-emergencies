@@ -1,6 +1,5 @@
-package pl.put.srds.EmergenciesClient.grpc;
+package pl.put.srds.emergenciesclient.grpc;
 
-import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
