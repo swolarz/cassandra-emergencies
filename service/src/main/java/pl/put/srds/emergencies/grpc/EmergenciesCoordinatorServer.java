@@ -9,12 +9,11 @@ import java.util.concurrent.TimeUnit;
 public class EmergenciesCoordinatorServer {
 
     private final int port;
-    private final Server server;
+    private Server server;
 
     public EmergenciesCoordinatorServer(int port)
     {
         this.port = port;
-        this.server = ServerBuilder.forPort(port).build();
     }
 
     public void blockThreadUntilShutdown() throws InterruptedException {
@@ -24,7 +23,10 @@ public class EmergenciesCoordinatorServer {
     }
 
     public void start() throws IOException {
-        server.start();
+        server = ServerBuilder.forPort(port)
+                .addService(new EmergenciesCoordinatorService())
+                .build()
+                .start();
         System.out.println("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

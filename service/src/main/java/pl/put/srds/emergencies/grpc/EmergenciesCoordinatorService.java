@@ -6,7 +6,7 @@ import pl.put.srds.emergencies.generated.EmergenciesReleasingConfirmation;
 import pl.put.srds.emergencies.generated.EmergenciesRequest;
 import pl.put.srds.emergencies.generated.EmergenciesRequestConfirmation;
 
-public class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.EmergenciesCoordinatorGrpc.EmergenciesCoordinatorImplBase {
+class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.EmergenciesCoordinatorGrpc.EmergenciesCoordinatorImplBase {
     @Override
     public void releaseEmergencies(EmergenciesReleasing request, StreamObserver<EmergenciesReleasingConfirmation> responseObserver) {
         responseObserver.onNext(handleReleaseEmergencies(request));

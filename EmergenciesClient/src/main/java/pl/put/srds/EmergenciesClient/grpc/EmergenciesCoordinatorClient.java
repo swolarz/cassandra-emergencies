@@ -1,5 +1,6 @@
 package pl.put.srds.EmergenciesClient.grpc;
 
+import io.grpc.Channel;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -24,7 +25,7 @@ public class EmergenciesCoordinatorClient {
         asyncStub = EmergenciesCoordinatorGrpc.newStub(channel);
     }
 
-    public void requestForEmergencies() {
+    public void requestForEmergenciesAsync() {
         pl.put.srds.emergencies.generated.EmergenciesRequest request = pl.put.srds.emergencies.generated.EmergenciesRequest.newBuilder().setGBAAmount(2).setGCBAAmount(1).build();
         StreamObserver<pl.put.srds.emergencies.generated.EmergenciesRequestConfirmation> observer = new StreamObserver<>() {
             @Override
@@ -46,7 +47,7 @@ public class EmergenciesCoordinatorClient {
         asyncStub.requestEmergencies(request, observer);
     }
 
-    public void releaseEmergencies(String requestId) {
+    public void releaseEmergenciesAsync(String requestId) {
         pl.put.srds.emergencies.generated.EmergenciesReleasing releaseRequest = pl.put.srds.emergencies.generated.EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
         StreamObserver<pl.put.srds.emergencies.generated.EmergenciesReleasingConfirmation> observer = new StreamObserver<>() {
             @Override
@@ -66,6 +67,16 @@ public class EmergenciesCoordinatorClient {
             }
         };
         asyncStub.releaseEmergencies(releaseRequest, observer);
+    }
+
+    public String requestForEmergenciesSync() {
+        pl.put.srds.emergencies.generated.EmergenciesRequest request = pl.put.srds.emergencies.generated.EmergenciesRequest.newBuilder().setGBAAmount(2).setGCBAAmount(1).build();
+        return blockingStub.requestEmergencies(request).getRequestId();
+    }
+
+    public void releaseEmergenciesSync(String requestId) {
+        pl.put.srds.emergencies.generated.EmergenciesReleasing releaseRequest = pl.put.srds.emergencies.generated.EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
+        blockingStub.releaseEmergencies(releaseRequest);
     }
 
     public void shutdown() throws InterruptedException {
