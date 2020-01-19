@@ -1,7 +1,5 @@
 package pl.put.srds.emergenciesclient.grpc;
 
-import io.grpc.Codec;
-import io.grpc.DecompressorRegistry;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
@@ -9,7 +7,9 @@ import pl.put.srds.emergencies.generated.*;
 import pl.put.srds.emergenciesclient.grpc.generator.RequestsGenerator;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class EmergenciesCoordinatorClient {
 
@@ -75,8 +75,28 @@ public class EmergenciesCoordinatorClient {
     public String requestForEmergenciesSync() {
         EmergenciesRequest request =  generator.GenerateRequest();
         PrintRequestedFireTrucks(request);
+        return requestForEmergenciesSync(request);
+    }
+
+    private String requestForEmergenciesSync(EmergenciesRequest request) {
         EmergenciesRequestConfirmation response = blockingStub.requestEmergencies(request);
-        PrintAssignedFireTrucks(response);
+
+        if (response.getRequestId().equals("-1"))
+        {
+            System.out.println("ERROR: Resend request in a while");
+            Random r = new Random();
+            try {
+                Thread.sleep((r.nextInt(5) + 1) * 200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return requestForEmergenciesSync(request);
+        }
+        else
+        {
+            PrintAssignedFireTrucks(response);
+        }
+
         return response.getRequestId();
     }
 
@@ -108,17 +128,17 @@ public class EmergenciesCoordinatorClient {
     private void PrintAssignedFireTrucks(EmergenciesRequestConfirmation response) {
         System.out.println("ASSIGNED FIRE TRUCKS:");
         System.out.println("GBA:");
-        PrintList(response.getGBABrigadesList());
+        PrintList(response.getAssignedTrucksList().stream().filter(e -> e.getTypeId() == 1).map(FireTruckAssignment::getBrigadeId).collect(Collectors.toList()));
         System.out.println("GCBA:");
-        PrintList(response.getGCBABrigadesList());
+        PrintList(response.getAssignedTrucksList().stream().filter(e -> e.getTypeId() == 2).map(FireTruckAssignment::getBrigadeId).collect(Collectors.toList()));
         System.out.println("GLBA:");
-        PrintList(response.getGLBABrigadesList());
+        PrintList(response.getAssignedTrucksList().stream().filter(e -> e.getTypeId() == 3).map(FireTruckAssignment::getBrigadeId).collect(Collectors.toList()));
         System.out.println("SD:");
-        PrintList(response.getSDBrigadesList());
+        PrintList(response.getAssignedTrucksList().stream().filter(e -> e.getTypeId() == 4).map(FireTruckAssignment::getBrigadeId).collect(Collectors.toList()));
         System.out.println("SCRt:");
-        PrintList(response.getSCRtBrigadesList());
+        PrintList(response.getAssignedTrucksList().stream().filter(e -> e.getTypeId() == 5).map(FireTruckAssignment::getBrigadeId).collect(Collectors.toList()));
         System.out.println("SRd:");
-        PrintList(response.getSRdBrigadesList());
+        PrintList(response.getAssignedTrucksList().stream().filter(e -> e.getTypeId() == 6).map(FireTruckAssignment::getBrigadeId).collect(Collectors.toList()));
     }
 
     private void PrintList(List<Integer> list) {
