@@ -3,8 +3,8 @@ package pl.put.srds.emergenciesclient.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
-import pl.put.srds.emergencies.generated.EmergenciesCoordinatorGrpc;
-import pl.put.srds.emergencies.generated.EmergenciesRequestConfirmation;
+import pl.put.srds.emergencies.generated.*;
+import pl.put.srds.emergenciesclient.grpc.generator.RequestsGenerator;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +13,7 @@ public class EmergenciesCoordinatorClient {
     private final ManagedChannel channel;
     private final EmergenciesCoordinatorGrpc.EmergenciesCoordinatorBlockingStub blockingStub;
     private final EmergenciesCoordinatorGrpc.EmergenciesCoordinatorStub asyncStub;
+    private static RequestsGenerator generator = new RequestsGenerator();
 
     public EmergenciesCoordinatorClient(String host, int port){
         this(ManagedChannelBuilder.forAddress(host, port).usePlaintext());
@@ -25,8 +26,8 @@ public class EmergenciesCoordinatorClient {
     }
 
     public void requestForEmergenciesAsync() {
-        pl.put.srds.emergencies.generated.EmergenciesRequest request = pl.put.srds.emergencies.generated.EmergenciesRequest.newBuilder().setGBAAmount(2).setGCBAAmount(1).build();
-        StreamObserver<pl.put.srds.emergencies.generated.EmergenciesRequestConfirmation> observer = new StreamObserver<>() {
+        EmergenciesRequest request = generator.GenerateRequest();
+        StreamObserver<EmergenciesRequestConfirmation> observer = new StreamObserver<>() {
             @Override
             public void onNext(EmergenciesRequestConfirmation value) {
                 System.out.println(value.getRequestId());
@@ -47,10 +48,10 @@ public class EmergenciesCoordinatorClient {
     }
 
     public void releaseEmergenciesAsync(String requestId) {
-        pl.put.srds.emergencies.generated.EmergenciesReleasing releaseRequest = pl.put.srds.emergencies.generated.EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
-        StreamObserver<pl.put.srds.emergencies.generated.EmergenciesReleasingConfirmation> observer = new StreamObserver<>() {
+        EmergenciesReleasing releaseRequest = EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
+        StreamObserver<EmergenciesReleasingConfirmation> observer = new StreamObserver<>() {
             @Override
-            public void onNext(pl.put.srds.emergencies.generated.EmergenciesReleasingConfirmation value) {
+            public void onNext(EmergenciesReleasingConfirmation value) {
                 System.out.println("ZWOLNIONE");
             }
 
@@ -69,12 +70,12 @@ public class EmergenciesCoordinatorClient {
     }
 
     public String requestForEmergenciesSync() {
-        pl.put.srds.emergencies.generated.EmergenciesRequest request = pl.put.srds.emergencies.generated.EmergenciesRequest.newBuilder().setGBAAmount(2).setGCBAAmount(1).build();
+        EmergenciesRequest request =  generator.GenerateRequest();
         return blockingStub.requestEmergencies(request).getRequestId();
     }
 
     public void releaseEmergenciesSync(String requestId) {
-        pl.put.srds.emergencies.generated.EmergenciesReleasing releaseRequest = pl.put.srds.emergencies.generated.EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
+        EmergenciesReleasing releaseRequest = EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
         blockingStub.releaseEmergencies(releaseRequest);
     }
 

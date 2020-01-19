@@ -20,7 +20,15 @@ class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.Em
     }
 
     private EmergenciesRequestConfirmation handleRequestEmergencies(EmergenciesRequest request) {
-        return EmergenciesRequestConfirmation.newBuilder().setRequestId("1").build();
+        return EmergenciesRequestConfirmation.newBuilder()
+                .setRequestId("1")
+                .addAllGBABrigades(request.getGBABrigadesList())
+                .addAllGCBABrigades(request.getGCBABrigadesList())
+                .addAllGLBABrigades(request.getGLBABrigadesList())
+                .addAllSCRtBrigades(request.getSCRtBrigadesList())
+                .addAllSDBrigades(request.getSDBrigadesList())
+                .addAllSRdBrigades(request.getSRdBrigadesList())
+                .build();
     }
 
     private EmergenciesReleasingConfirmation handleReleaseEmergencies(EmergenciesReleasing request) {
