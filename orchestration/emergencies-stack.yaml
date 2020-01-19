@@ -1,0 +1,77 @@
+version: "3"
+
+services:
+    cassy1:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_BROADCAST_ADDRESS: "cassy1"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-1:/var/lib/cassandra
+        deploy:
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                window: 120s
+
+    cassy2:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_BROADCAST_ADDRESS: "cassy2"
+            CASSANDRA_SEEDS: "cassy1"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-2:/var/lib/cassandra
+        deploy:
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                delay: 15s
+                window: 120s
+
+    cassy3:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_BROADCAST_ADDRESS: "cassy3"
+            CASSANDRA_SEEDS: "cassy1,cassy2"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-3:/var/lib/cassandra
+        deploy:
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                delay: 15s
+                window: 120s
+
+    cassy4:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_BROADCAST_ADDRESS: "cassy4"
+            CASSANDRA_SEEDS: "cassy1,cassy2,cassy3"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-4:/var/lib/cassandra
+        deploy:
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                delay: 15s
+                window: 120s
+
+volumes:
+    cassandra-data-1:
+    cassandra-data-2:
+    cassandra-data-3:
+    cassandra-data-4:
+
+networks:
+    cluster-net:
+        external:
+            name: cassandra-net
+
+
