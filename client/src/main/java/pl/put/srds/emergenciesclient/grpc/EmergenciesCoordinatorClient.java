@@ -1,11 +1,14 @@
 package pl.put.srds.emergenciesclient.grpc;
 
+import io.grpc.Codec;
+import io.grpc.DecompressorRegistry;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import pl.put.srds.emergencies.generated.*;
 import pl.put.srds.emergenciesclient.grpc.generator.RequestsGenerator;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class EmergenciesCoordinatorClient {
@@ -71,7 +74,10 @@ public class EmergenciesCoordinatorClient {
 
     public String requestForEmergenciesSync() {
         EmergenciesRequest request =  generator.GenerateRequest();
-        return blockingStub.requestEmergencies(request).getRequestId();
+        PrintRequestedFireTrucks(request);
+        EmergenciesRequestConfirmation response = blockingStub.requestEmergencies(request);
+        PrintAssignedFireTrucks(response);
+        return response.getRequestId();
     }
 
     public void releaseEmergenciesSync(String requestId) {
@@ -81,5 +87,42 @@ public class EmergenciesCoordinatorClient {
 
     public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+    }
+
+    private void PrintRequestedFireTrucks(EmergenciesRequest request) {
+        System.out.println("REQUESTED FIRE TRUCKS:");
+        System.out.println("GBA:");
+        PrintList(request.getGBABrigadesList());
+        System.out.println("GCBA:");
+        PrintList(request.getGCBABrigadesList());
+        System.out.println("GLBA:");
+        PrintList(request.getGLBABrigadesList());
+        System.out.println("SD:");
+        PrintList(request.getSDBrigadesList());
+        System.out.println("SCRt:");
+        PrintList(request.getSCRtBrigadesList());
+        System.out.println("SRd:");
+        PrintList(request.getSRdBrigadesList());
+    }
+
+    private void PrintAssignedFireTrucks(EmergenciesRequestConfirmation response) {
+        System.out.println("ASSIGNED FIRE TRUCKS:");
+        System.out.println("GBA:");
+        PrintList(response.getGBABrigadesList());
+        System.out.println("GCBA:");
+        PrintList(response.getGCBABrigadesList());
+        System.out.println("GLBA:");
+        PrintList(response.getGLBABrigadesList());
+        System.out.println("SD:");
+        PrintList(response.getSDBrigadesList());
+        System.out.println("SCRt:");
+        PrintList(response.getSCRtBrigadesList());
+        System.out.println("SRd:");
+        PrintList(response.getSRdBrigadesList());
+    }
+
+    private void PrintList(List<Integer> list) {
+        list.forEach(entry -> System.out.print("\t" + entry));
+        System.out.println();
     }
 }
