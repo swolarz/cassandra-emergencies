@@ -10,6 +10,9 @@ services:
         volumes:
             - cassandra-data-1:/var/lib/cassandra
         deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST1}
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
@@ -25,6 +28,9 @@ services:
         volumes:
             - cassandra-data-2:/var/lib/cassandra
         deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST2}
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
@@ -41,6 +47,9 @@ services:
         volumes:
             - cassandra-data-3:/var/lib/cassandra
         deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST3}
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
@@ -57,6 +66,9 @@ services:
         volumes:
             - cassandra-data-4:/var/lib/cassandra
         deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST4}
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
