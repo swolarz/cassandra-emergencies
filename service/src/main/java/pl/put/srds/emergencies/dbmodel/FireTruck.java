@@ -7,13 +7,13 @@ import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table("FireTrucks")
 public class FireTruck {
-    @PrimaryKeyColumn(name = "BrigadeId", type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "BrigadeId", ordinal = 0,  type = PrimaryKeyType.PARTITIONED)
     private int brigadeId;
 
-    @PrimaryKeyColumn(name = "TypeId", type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "TypeId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     private int typeId;
 
-    @PrimaryKeyColumn(name = "IsAssigned", type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "IsAssigned", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     private boolean isAssigned;
 
     @Column("TruckId")

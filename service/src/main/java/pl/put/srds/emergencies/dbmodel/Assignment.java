@@ -9,13 +9,13 @@ import java.util.UUID;
 
 @Table("Assignments")
 public class Assignment {
-    @PrimaryKeyColumn(name = "TruckId", type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "TruckId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private int truckId;
 
-    @PrimaryKeyColumn(name = "RequestId", type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "RequestId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     private UUID requestId;
 
-    @PrimaryKeyColumn(name = "Timestamp", type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "Timestamp", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     private Date timestamp;
 
     public Assignment(
@@ -26,7 +26,6 @@ public class Assignment {
         this.requestId = requestId;
         this.timestamp = timestamp;
     }
-
 
     public int getTruckId() {
         return truckId;
