@@ -25,19 +25,24 @@ repositories {
 }
 
 dependencies {
-	//implementation 'org.springframework.boot:spring-boot-starter-data-cassandra-reactive'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-cassandra'
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
 	testImplementation 'io.projectreactor:reactor-test'
+
+	implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
 	implementation "io.grpc:grpc-protobuf:${grpcVersion}"
 	implementation "io.grpc:grpc-stub:${grpcVersion}"
-	implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
 	runtimeOnly "io.grpc:grpc-netty-shaded:${grpcVersion}"
 	testImplementation "io.grpc:grpc-testing:${grpcVersion}"
+
 	implementation 'javax.annotation:javax.annotation-api:1.3.2'
-	implementation 'org.springframework.data:spring-data-cassandra:2.2.4.RELEASE'
+
+	compileOnly 'org.projectlombok:lombok:1.18.10'
+	annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
 test {

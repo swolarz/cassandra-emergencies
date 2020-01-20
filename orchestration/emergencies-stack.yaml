@@ -1,0 +1,109 @@
+version: "3"
+
+services:
+#    emergencies-service:
+#        image: ${REGISTRY}:5000/emergencies-service
+#        networks:
+#            - cluster-net
+#        ports:
+#            - 12345:12345
+#        deploy:
+#            replicas: 4
+#            restart_policy:
+#                condition: on-failure
+#                max_attempts: 3
+#                delay: 30s
+#                window: 120s
+
+    cassy1:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_CLUSTER_NAME: emergencies_cluster
+            CASSANDRA_BROADCAST_ADDRESS: "cassy1"
+        networks:
+            - cluster-net
+        ports:
+            - 9042:9042
+        volumes:
+            - cassandra-data-1:/var/lib/cassandra
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST1}
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                window: 120s
+
+    cassy2:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_CLUSTER_NAME: emergencies_cluster
+            CASSANDRA_BROADCAST_ADDRESS: "cassy2"
+            CASSANDRA_SEEDS: "cassy1"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-2:/var/lib/cassandra
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST2}
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                delay: 20s
+                window: 120s
+
+    cassy3:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_CLUSTER_NAME: emergencies_cluster
+            CASSANDRA_BROADCAST_ADDRESS: "cassy3"
+            CASSANDRA_SEEDS: "cassy1,cassy2"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-3:/var/lib/cassandra
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST3}
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                delay: 30s
+                window: 120s
+
+    cassy4:
+        image: cassandra:3.11
+        environment:
+            CASSANDRA_CLUSTER_NAME: emergencies_cluster
+            CASSANDRA_BROADCAST_ADDRESS: "cassy4"
+            CASSANDRA_SEEDS: "cassy1,cassy2,cassy3"
+        networks:
+            - cluster-net
+        volumes:
+            - cassandra-data-4:/var/lib/cassandra
+        deploy:
+            placement:
+                constraints:
+                    - node.hostname == ${HOST4}
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+                delay: 25s
+                window: 120s
+
+volumes:
+    cassandra-data-1:
+    cassandra-data-2:
+    cassandra-data-3:
+    cassandra-data-4:
+
+networks:
+    cluster-net:
+        external:
+            name: cassandra-net
+
+

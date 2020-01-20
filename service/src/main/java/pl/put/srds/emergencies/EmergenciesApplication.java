@@ -6,6 +6,7 @@ import pl.put.srds.emergencies.grpc.EmergenciesCoordinatorServer;
 
 import java.io.IOException;
 
+
 @SpringBootApplication
 public class EmergenciesApplication {
 
