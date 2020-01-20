@@ -9,7 +9,6 @@ if __name__ == "__main__":
           " IsAssigned boolean, " +
           " TruckId int, " +
           " PRIMARY KEY ((BrigadeId, TypeId), IsAssigned));")
-    print(" CREATE INDEX activeTypesIndex ON FireTrucks (TypeId, IsAssigned);")
 
     print(" CREATE TABLE Assignments ( " +
           " TruckId int, " +
