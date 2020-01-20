@@ -1,10 +1,17 @@
 package pl.put.srds.emergencies.dbmodel;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+
 @Table("FireTrucks")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class FireTruck {
     @PrimaryKey
     private FireTruckKey key;
@@ -12,26 +19,19 @@ public class FireTruck {
     @Column("TruckId")
     private int truckId;
 
-    public FireTruck(
-            final FireTruckKey key,
-            final int truckId) {
-        this.setKey(key);
-        this.setTruckId(truckId);
+    public int getTypeId() {
+        return key.getTypeId();
     }
 
-    public FireTruckKey getKey() {
-        return key;
+    public void setTypeId(int typeId) {
+        key.setTypeId(typeId);
     }
 
-    public void setKey(FireTruckKey key) {
-        this.key = key;
+    public boolean isIsAssigned() {
+        return key.isAssigned();
     }
 
-    public int getTruckId() {
-        return truckId;
-    }
-
-    public void setTruckId(int truckId) {
-        this.truckId = truckId;
+    public void setIsAssigned(boolean isAssigned) {
+        key.setAssigned(isAssigned);
     }
 }

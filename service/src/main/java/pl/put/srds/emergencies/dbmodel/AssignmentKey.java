@@ -1,5 +1,8 @@
 package pl.put.srds.emergencies.dbmodel;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyClass;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
@@ -9,6 +12,9 @@ import java.util.Date;
 import java.util.UUID;
 
 @PrimaryKeyClass
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class AssignmentKey implements Serializable {
     @PrimaryKeyColumn(name = "TruckId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private int truckId;
@@ -18,37 +24,4 @@ public class AssignmentKey implements Serializable {
 
     @PrimaryKeyColumn(name = "Timestamp", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     private Date timestamp;
-
-    public AssignmentKey(
-            final int truckId,
-            final UUID requestId,
-            final Date timestamp) {
-        this.truckId = truckId;
-        this.requestId = requestId;
-        this.timestamp = timestamp;
-    }
-
-    public int getTruckId() {
-        return truckId;
-    }
-
-    public void setTruckId(int truckId) {
-        this.truckId = truckId;
-    }
-
-    public UUID getRequestId() {
-        return requestId;
-    }
-
-    public void setRequestId(UUID requestId) {
-        this.requestId = requestId;
-    }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
 }

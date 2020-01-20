@@ -4,7 +4,7 @@ plugins {
 
 	id 'idea'
 
-	id 'org.springframework.boot' version '2.2.4.RELEASE'
+	id 'org.springframework.boot' version '2.2.2.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 
 	id 'com.google.protobuf' version '0.8.8'
