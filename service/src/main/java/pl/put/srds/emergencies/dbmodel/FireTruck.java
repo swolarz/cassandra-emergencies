@@ -1,48 +1,37 @@
 package pl.put.srds.emergencies.dbmodel;
 
-import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
 import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 @Table("FireTrucks")
 public class FireTruck {
-    @PrimaryKeyColumn(name = "BrigadeId", ordinal = 0,  type = PrimaryKeyType.PARTITIONED)
-    private int brigadeId;
-
-    @PrimaryKeyColumn(name = "TypeId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
-    private int typeId;
-
-    @PrimaryKeyColumn(name = "IsAssigned", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    private boolean isAssigned;
+    @PrimaryKey
+    private FireTruckKey key;
 
     @Column("TruckId")
     private int truckId;
 
     public FireTruck(
-            final int brigadeId,
-            final int typeId,
-            final boolean isAssigned,
+            final FireTruckKey key,
             final int truckId) {
-        this.brigadeId = brigadeId;
-        this.typeId = typeId;
-        this.isAssigned = isAssigned;
-        this.truckId = truckId;
+        this.setKey(key);
+        this.setTruckId(truckId);
     }
 
-    public int getBrigadeId() {
-        return brigadeId;
+    public FireTruckKey getKey() {
+        return key;
     }
 
-    public int getTypeId() {
-        return typeId;
-    }
-
-    public boolean isAssigned() {
-        return isAssigned;
+    public void setKey(FireTruckKey key) {
+        this.key = key;
     }
 
     public int getTruckId() {
         return truckId;
+    }
+
+    public void setTruckId(int truckId) {
+        this.truckId = truckId;
     }
 }
