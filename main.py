@@ -8,14 +8,14 @@ if __name__ == "__main__":
           " TypeId int, " +
           " IsAssigned boolean, " +
           " TruckId int, " +
-          " PRIMARY KEY (BrigadeId, TypeId));")
+          " PRIMARY KEY ((BrigadeId, TypeId), IsAssigned));")
     print(" CREATE INDEX activeTypesIndex ON FireTrucks (TypeId, IsAssigned);")
 
     print(" CREATE TABLE Assignments ( " +
           " TruckId int, " +
           " RequestId UUID, " +
           " Timestamp timestamp, " +
-          " PRIMARY KEY (TruckId, RequestId));")
+          " PRIMARY KEY ((TruckId, RequestId), Timestamp));")
 
     truck_id = 1
     for i in range(1, 1001):
@@ -23,3 +23,4 @@ if __name__ == "__main__":
             print("insert into FireTrucks (BrigadeId, TypeId, IsAssigned, TruckId) values "
                   + str.format(" ({0}, {1}, false, {2});", i, j, truck_id))
             truck_id += 1
+

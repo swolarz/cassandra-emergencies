@@ -1,8 +1,6 @@
 package pl.put.srds.emergencies.dbmodel;
 
-import org.springframework.data.cassandra.core.cql.Ordering;
 import org.springframework.data.cassandra.core.cql.PrimaryKeyType;
-import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
@@ -17,7 +15,7 @@ public class Assignment {
     @PrimaryKeyColumn(name = "RequestId", type = PrimaryKeyType.PARTITIONED)
     private UUID requestId;
 
-    @Column("Timestamp")
+    @PrimaryKeyColumn(name = "Timestamp", type = PrimaryKeyType.CLUSTERED)
     private Date timestamp;
 
     public Assignment(
