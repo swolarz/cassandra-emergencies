@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+    emergencies-service:
+        build: .
+        ports:
+            - 12345:12345
+        environment:
+            CASSANDRA_HOST: localhost
+            CASSANDRA_PORT: 9042
