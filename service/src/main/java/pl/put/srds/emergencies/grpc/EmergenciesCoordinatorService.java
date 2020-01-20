@@ -1,10 +1,10 @@
 package pl.put.srds.emergencies.grpc;
 
 import io.grpc.stub.StreamObserver;
-import pl.put.srds.emergencies.generated.EmergenciesReleasing;
-import pl.put.srds.emergencies.generated.EmergenciesReleasingConfirmation;
-import pl.put.srds.emergencies.generated.EmergenciesRequest;
-import pl.put.srds.emergencies.generated.EmergenciesRequestConfirmation;
+import pl.put.srds.emergencies.generated.*;
+
+import java.util.LinkedList;
+import java.util.Random;
 
 class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.EmergenciesCoordinatorGrpc.EmergenciesCoordinatorImplBase {
     @Override
@@ -20,7 +20,63 @@ class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.Em
     }
 
     private EmergenciesRequestConfirmation handleRequestEmergencies(EmergenciesRequest request) {
-        return EmergenciesRequestConfirmation.newBuilder().setRequestId("1").build();
+        Random r  = new Random();
+
+        if (r.nextBoolean()) {
+            LinkedList<FireTruckAssignment> assignments = new LinkedList<>();
+
+            request.getGBABrigadesList().forEach(e ->
+                    assignments.add(FireTruckAssignment.newBuilder()
+                            .setBrigadeId(e)
+                            .setTruckId(2)
+                            .setTypeId(1)
+                            .build()));
+
+            request.getGCBABrigadesList().forEach(e ->
+                    assignments.add(FireTruckAssignment.newBuilder()
+                            .setBrigadeId(e)
+                            .setTruckId(2)
+                            .setTypeId(2)
+                            .build()));
+
+            request.getGLBABrigadesList().forEach(e ->
+                    assignments.add(FireTruckAssignment.newBuilder()
+                            .setBrigadeId(e)
+                            .setTruckId(2)
+                            .setTypeId(3)
+                            .build()));
+
+            request.getSCRtBrigadesList().forEach(e ->
+                    assignments.add(FireTruckAssignment.newBuilder()
+                            .setBrigadeId(e)
+                            .setTruckId(2)
+                            .setTypeId(4)
+                            .build()));
+
+            request.getSDBrigadesList().forEach(e ->
+                    assignments.add(FireTruckAssignment.newBuilder()
+                            .setBrigadeId(e)
+                            .setTruckId(2)
+                            .setTypeId(5)
+                            .build()));
+
+            request.getSRdBrigadesList().forEach(e ->
+                    assignments.add(FireTruckAssignment.newBuilder()
+                            .setBrigadeId(e)
+                            .setTruckId(2)
+                            .setTypeId(6)
+                            .build()));
+
+            return EmergenciesRequestConfirmation.newBuilder()
+                    .setRequestId("1")
+                    .addAllAssignedTrucks(assignments)
+                    .build();
+        }
+        else {
+            return EmergenciesRequestConfirmation.newBuilder()
+                    .setRequestId("-1")
+                    .build();
+        }
     }
 
     private EmergenciesReleasingConfirmation handleReleaseEmergencies(EmergenciesReleasing request) {
