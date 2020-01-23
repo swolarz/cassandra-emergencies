@@ -18,20 +18,4 @@ public class FireTruck {
 
     @Column("TruckId")
     private int truckId;
-
-    public int getTypeId() {
-        return key.getTypeId();
-    }
-
-    public void setTypeId(int typeId) {
-        key.setTypeId(typeId);
-    }
-
-    public boolean isIsAssigned() {
-        return key.isAssigned();
-    }
-
-    public void setIsAssigned(boolean isAssigned) {
-        key.setAssigned(isAssigned);
-    }
 }

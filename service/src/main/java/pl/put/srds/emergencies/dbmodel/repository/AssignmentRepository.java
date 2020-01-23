@@ -1,4 +1,4 @@
-package pl.put.srds.emergencies.dbmodel.repositories.interfaces;
+package pl.put.srds.emergencies.dbmodel.repository;
 
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.stereotype.Repository;

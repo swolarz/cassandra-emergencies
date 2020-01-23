@@ -1,8 +1,8 @@
 CREATE KEYSPACE IF NOT EXISTS emergencies 
   WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
   USE emergencies;
- CREATE TABLE FireTrucks (  BrigadeId int,  TypeId int,  IsAssigned boolean,  TruckId int,  PRIMARY KEY ((BrigadeId, TypeId), IsAssigned));
- CREATE TABLE Assignments (  TruckId int,  RequestId UUID,  Timestamp timestamp,  PRIMARY KEY ((TruckId, RequestId), Timestamp));
+ CREATE TABLE IF NOT EXISTS FireTrucks (  BrigadeId int,  TypeId int,  IsAssigned boolean,  TruckId int,  PRIMARY KEY ((BrigadeId, TypeId), IsAssigned));
+ CREATE TABLE IF NOT EXISTS Assignments (  TruckId int,  RequestId UUID,  Timestamp timestamp,  PRIMARY KEY ((TruckId, RequestId), Timestamp));
 insert into FireTrucks (BrigadeId, TypeId, IsAssigned, TruckId) values  (1, 1, false, 1);
 insert into FireTrucks (BrigadeId, TypeId, IsAssigned, TruckId) values  (1, 2, false, 2);
 insert into FireTrucks (BrigadeId, TypeId, IsAssigned, TruckId) values  (1, 3, false, 3);
