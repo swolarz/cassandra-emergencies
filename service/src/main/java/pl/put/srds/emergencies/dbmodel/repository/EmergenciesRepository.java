@@ -5,9 +5,9 @@ import pl.put.srds.emergencies.dbmodel.FireTruck;
 
 public interface EmergenciesRepository {
 
-    Assignment makeAssignment(FireTruck fireTruck, int requestId);
+    Assignment makeAssignment(FireTruck fireTruck, String requestId);
     boolean hasFirstAssignment(Assignment assignment);
 
     boolean rollbackAssignment(Assignment assignment);
-    boolean releaseAssignment(FireTruck fireTruck, int requestId);
+    boolean releaseAssignment(FireTruck fireTruck, String requestId);
 }

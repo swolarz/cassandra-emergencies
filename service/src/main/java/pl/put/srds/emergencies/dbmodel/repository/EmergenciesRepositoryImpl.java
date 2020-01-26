@@ -16,7 +16,7 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
     private final CassandraTemplate cassandraTemplate;
 
     @Override
-    public Assignment makeAssignment(FireTruck fireTruck, int requestId) {
+    public Assignment makeAssignment(FireTruck fireTruck, String requestId) {
         throw new UnsupportedOperationException();
     }
 
@@ -32,7 +32,7 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
     }
 
     @Override
-    public boolean releaseAssignment(FireTruck fireTruck, int requestId) {
+    public boolean releaseAssignment(FireTruck fireTruck, String requestId) {
         throw new UnsupportedOperationException();
     }
 
