@@ -19,9 +19,11 @@ public class AssignmentKey implements Serializable {
     @PrimaryKeyColumn(name = "TruckId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private int truckId;
 
-    @PrimaryKeyColumn(name = "RequestId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "Timestamp", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
+    private Date timestamp;
+
+    @PrimaryKeyColumn(name = "RequestId", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     private UUID requestId;
 
-    @PrimaryKeyColumn(name = "Timestamp", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    private Date timestamp;
+
 }
