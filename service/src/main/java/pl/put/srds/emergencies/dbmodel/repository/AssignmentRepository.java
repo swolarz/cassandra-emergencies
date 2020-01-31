@@ -10,5 +10,6 @@ import java.util.UUID;
 
 @Repository
 public interface AssignmentRepository extends CassandraRepository<Assignment, AssignmentKey> {
-    List<Assignment> findByKeyTruckIdAndRequestId(int truckId, UUID requestId);
+    Assignment findFirstByKeyTruckId(int truckId);
+    Assignment findFirstByKeyTruckIdAndKeyRequestId(int truckId, String requestId);
 }

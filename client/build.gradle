@@ -9,7 +9,7 @@ plugins {
 
 apply plugin : "java"
 ext {
-    javaMainClass = "pl.put.srds.EmergenciesClient.EmergenciesClientApplication"
+    javaMainClass = "pl.put.srds.emergenciesclient.EmergenciesClientApplication"
 }
 
 application {

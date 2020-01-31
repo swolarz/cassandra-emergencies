@@ -8,6 +8,6 @@ public interface EmergenciesRepository {
     Assignment makeAssignment(FireTruck fireTruck, String requestId);
     boolean hasFirstAssignment(Assignment assignment);
 
-    boolean rollbackAssignment(Assignment assignment);
+    void rollbackAssignment(Assignment assignment);
     boolean releaseAssignment(FireTruck fireTruck, String requestId);
 }

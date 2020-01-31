@@ -23,7 +23,5 @@ public class AssignmentKey implements Serializable {
     private Date timestamp;
 
     @PrimaryKeyColumn(name = "RequestId", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    private UUID requestId;
-
-
+    private String requestId;
 }

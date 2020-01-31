@@ -14,26 +14,63 @@ import pl.put.srds.emergencies.dbmodel.FireTruck;
 public class EmergenciesRepositoryImpl implements EmergenciesRepository {
 
     private final CassandraTemplate cassandraTemplate;
+    private final AssignmentRepository assignmentRepository;
 
     @Override
     public Assignment makeAssignment(FireTruck fireTruck, String requestId) {
-        throw new UnsupportedOperationException();
+        String batchCql =
+                "BEGIN BATCH " +
+                        "update firetrucks set isassigned = true\n" +
+                            "where brigadeid = ?\n" +
+                                "and typeid = ?;\n" +
+                        "insert into assignments (truckid, requestid, timestamp)\n" +
+                            "values (?, ?, toTimestamp(now()));\n" +
+                "APPLY BATCH;";
+
+        boolean batchApplied = cassandraTemplate.getCqlOperations().execute(
+                batchCql,
+                fireTruck.getKey().getBrigadeId(),
+                fireTruck.getKey().getTypeId(),
+                fireTruck.getTruckId(),
+                requestId
+        );
+
+        if (!batchApplied)
+            return null;
+
+        return assignmentRepository.findFirstByKeyTruckIdAndKeyRequestId(fireTruck.getTruckId(), requestId);
     }
 
     @Override
     public boolean hasFirstAssignment(Assignment assignment) {
-        throw new UnsupportedOperationException();
+        Assignment firstAssignment = assignmentRepository.findFirstByKeyTruckId(assignment.getKey().getTruckId());
+        return (firstAssignment.getKey().getRequestId().equals(assignment.getKey().getRequestId()));
     }
 
     @Override
-    public boolean rollbackAssignment(Assignment assignment) {
-        throw new UnsupportedOperationException();
-
+    public void rollbackAssignment(Assignment assignment) {
+        cassandraTemplate.delete(assignment);
     }
 
     @Override
     public boolean releaseAssignment(FireTruck fireTruck, String requestId) {
-        throw new UnsupportedOperationException();
+        String batchCql =
+                "BEGIN BATCH\n" +
+                        "delete from assignments\n" +
+                            "where truckid = ?\n" +
+                                "and requestid = ?;\n" +
+                        "update firetrucks set isassigned = false\n" +
+                            "where brigadeid = ?\n" +
+                                "and typeid = ?;\n" +
+                "APPLY BATCH;";
+
+        return cassandraTemplate.getCqlOperations().execute(
+                batchCql,
+                fireTruck.getTruckId(),
+                requestId,
+                fireTruck.getKey().getBrigadeId(),
+                fireTruck.getKey().getTypeId()
+        );
     }
 
     //    public Assignment makeAssignment(int truckId, int truckTypeId, int brigadeId, int requestId) {
