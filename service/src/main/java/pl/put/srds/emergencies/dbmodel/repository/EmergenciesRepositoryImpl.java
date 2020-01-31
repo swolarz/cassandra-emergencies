@@ -1,6 +1,8 @@
 package pl.put.srds.emergencies.dbmodel.repository;
 
-import lombok.RequiredArgsConstructor;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,31 +11,57 @@ import pl.put.srds.emergencies.dbmodel.FireTruck;
 
 
 @Repository
-@RequiredArgsConstructor
 @Slf4j
 public class EmergenciesRepositoryImpl implements EmergenciesRepository {
+
+    private static final String MAKE_ASSIGNMENT_CQL =
+            "BEGIN BATCH " +
+                    "update firetrucks set assigned = true\n" +
+                        "where brigadeid = ?\n" +
+                            "and typeid = ?;\n" +
+                    "insert into assignments (truckid, requestid, timestamp)\n" +
+                        "values (?, ?, toTimestamp(now()));\n" +
+            "APPLY BATCH;";
+
+    private static final String RELEASE_ASSIGNMENT_CQL =
+            "BEGIN BATCH\n" +
+                    "delete from assignments\n" +
+                        "where truckid = ?\n" +
+                            "and requestid = ?;\n" +
+                    "update firetrucks set assigned = false\n" +
+                        "where brigadeid = ?\n" +
+                            "and typeid = ?;\n" +
+            "APPLY BATCH;";
+
 
     private final CassandraTemplate cassandraTemplate;
     private final AssignmentRepository assignmentRepository;
 
+    private final PreparedStatement makeAssignmentStatement;
+    private final PreparedStatement releaseAssignmentStatement;
+
+
+    public EmergenciesRepositoryImpl(CassandraTemplate cassandraTemplate,
+                                     AssignmentRepository assignmentRepository,
+                                     Session session) {
+
+        this.cassandraTemplate = cassandraTemplate;
+        this.assignmentRepository = assignmentRepository;
+
+        this.makeAssignmentStatement = session.prepare(MAKE_ASSIGNMENT_CQL);
+        this.releaseAssignmentStatement = session.prepare(RELEASE_ASSIGNMENT_CQL);
+    }
+
     @Override
     public Assignment makeAssignment(FireTruck fireTruck, String requestId) {
-        String batchCql =
-                "BEGIN BATCH " +
-                        "update firetrucks set isassigned = true\n" +
-                            "where brigadeid = ?\n" +
-                                "and typeid = ?;\n" +
-                        "insert into assignments (truckid, requestid, timestamp)\n" +
-                            "values (?, ?, toTimestamp(now()));\n" +
-                "APPLY BATCH;";
-
-        boolean batchApplied = cassandraTemplate.getCqlOperations().execute(
-                batchCql,
+        BoundStatement statement = makeAssignmentStatement.bind(
                 fireTruck.getKey().getBrigadeId(),
                 fireTruck.getKey().getTypeId(),
                 fireTruck.getTruckId(),
                 requestId
         );
+
+        boolean batchApplied = cassandraTemplate.getCqlOperations().execute(statement);
 
         if (!batchApplied)
             return null;
@@ -54,23 +82,14 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
 
     @Override
     public boolean releaseAssignment(FireTruck fireTruck, String requestId) {
-        String batchCql =
-                "BEGIN BATCH\n" +
-                        "delete from assignments\n" +
-                            "where truckid = ?\n" +
-                                "and requestid = ?;\n" +
-                        "update firetrucks set isassigned = false\n" +
-                            "where brigadeid = ?\n" +
-                                "and typeid = ?;\n" +
-                "APPLY BATCH;";
-
-        return cassandraTemplate.getCqlOperations().execute(
-                batchCql,
+        BoundStatement statement = releaseAssignmentStatement.bind(
                 fireTruck.getTruckId(),
                 requestId,
                 fireTruck.getKey().getBrigadeId(),
                 fireTruck.getKey().getTypeId()
         );
+
+        return cassandraTemplate.getCqlOperations().execute(statement);
     }
 
     //    public Assignment makeAssignment(int truckId, int truckTypeId, int brigadeId, int requestId) {

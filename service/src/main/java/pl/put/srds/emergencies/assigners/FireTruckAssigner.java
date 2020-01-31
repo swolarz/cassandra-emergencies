@@ -1,23 +1,23 @@
 package pl.put.srds.emergencies.assigners;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import pl.put.srds.emergencies.dbmodel.Assignment;
 import pl.put.srds.emergencies.dbmodel.FireTruck;
 import pl.put.srds.emergencies.dbmodel.FireTruckKey;
-import pl.put.srds.emergencies.dbmodel.repository.EmergenciesRepositoryImpl;
+import pl.put.srds.emergencies.dbmodel.repository.EmergenciesRepository;
 import pl.put.srds.emergencies.dbmodel.repository.FireTruckRepository;
 import pl.put.srds.emergencies.generated.*;
 
 import java.util.Random;
 import java.util.UUID;
 
+@Service
+@RequiredArgsConstructor
 public class FireTruckAssigner {
 
-    @Autowired
-    private EmergenciesRepositoryImpl repository;
-
-    @Autowired
-    private FireTruckRepository fireTruckRepository;
+    private final EmergenciesRepository repository;
+    private final FireTruckRepository fireTruckRepository;
 
     private Random r = new Random();
     private static final int MAX_TRIES_IN_GETTING_FREE_TRUCK = 10; // TODO do configa z tym
@@ -63,7 +63,7 @@ public class FireTruckAssigner {
         do {
             iterations++;
 
-            ft = fireTruckRepository.findFirstByKeyBrigadeIdAndKeyTypeIdAndKeyIsAssigned(brigadeId, typeId, false);
+            ft = fireTruckRepository.findFirstByKeyBrigadeIdAndKeyTypeIdAndAssigned(brigadeId, typeId, false);
             if (ft == null) {
                 brigadeId = getRandomBrigadeId();
             }

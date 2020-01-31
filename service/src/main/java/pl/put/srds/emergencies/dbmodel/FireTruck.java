@@ -16,6 +16,9 @@ public class FireTruck {
     @PrimaryKey
     private FireTruckKey key;
 
+    @Column("Assigned")
+    private boolean assigned;
+
     @Column("TruckId")
     private int truckId;
 }

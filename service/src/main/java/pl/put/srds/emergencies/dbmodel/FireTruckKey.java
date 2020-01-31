@@ -19,7 +19,4 @@ public class FireTruckKey implements Serializable {
 
     @PrimaryKeyColumn(name = "TypeId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     private int typeId;
-
-    @PrimaryKeyColumn(name = "IsAssigned", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    private boolean isAssigned;
 }
