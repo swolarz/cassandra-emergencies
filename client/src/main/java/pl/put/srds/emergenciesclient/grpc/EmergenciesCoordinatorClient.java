@@ -2,8 +2,8 @@ package pl.put.srds.emergenciesclient.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.stub.StreamObserver;
 import pl.put.srds.emergencies.generated.*;
+import pl.put.srds.emergenciesclient.configs.ClientProperties;
 import pl.put.srds.emergenciesclient.grpc.generator.RequestsGenerator;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class EmergenciesCoordinatorClient {
 
     private final ManagedChannel channel;
     private final EmergenciesCoordinatorGrpc.EmergenciesCoordinatorBlockingStub blockingStub;
-    private final EmergenciesCoordinatorGrpc.EmergenciesCoordinatorStub asyncStub;
+    private final Random random = new Random();
     private static RequestsGenerator generator = new RequestsGenerator();
 
     public EmergenciesCoordinatorClient(String host, int port){
@@ -25,84 +25,55 @@ public class EmergenciesCoordinatorClient {
     private EmergenciesCoordinatorClient(ManagedChannelBuilder<?> channelBuilder) {
         channel = channelBuilder.build();
         blockingStub = EmergenciesCoordinatorGrpc.newBlockingStub(channel);
-        asyncStub = EmergenciesCoordinatorGrpc.newStub(channel);
     }
 
-    public void requestForEmergenciesAsync() {
-        EmergenciesRequest request = generator.GenerateRequest();
-        StreamObserver<EmergenciesRequestConfirmation> observer = new StreamObserver<>() {
-            @Override
-            public void onNext(EmergenciesRequestConfirmation value) {
-                System.out.println(value.getRequestId());
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                t.printStackTrace();
-                System.out.println("ERROR");
-            }
-
-            @Override
-            public void onCompleted() {
-                System.out.println("FINISHED");
-            }
-        };
-        asyncStub.requestEmergencies(request, observer);
-    }
-
-    public void releaseEmergenciesAsync(String requestId) {
-        EmergenciesReleasing releaseRequest = EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
-        StreamObserver<EmergenciesReleasingConfirmation> observer = new StreamObserver<>() {
-            @Override
-            public void onNext(EmergenciesReleasingConfirmation value) {
-                System.out.println("ZWOLNIONE");
-            }
-
-            @Override
-            public void onError(Throwable t) {
-                t.printStackTrace();
-                System.out.println("ERROR");
-            }
-
-            @Override
-            public void onCompleted() {
-                System.out.println("FINISHED");
-            }
-        };
-        asyncStub.releaseEmergencies(releaseRequest, observer);
-    }
-
-    public String requestForEmergenciesSync() {
+    public void handleTheAlert() {
         EmergenciesRequest request =  generator.GenerateRequest();
-        PrintRequestedFireTrucks(request);
-        return requestForEmergenciesSync(request);
+
+        EmergenciesRequestConfirmation response = requestForEmergenciesSync(request);
+
+        waitAlertTime();
+
+        releaseEmergenciesSync(response);
     }
 
-    private String requestForEmergenciesSync(EmergenciesRequest request) {
-        EmergenciesRequestConfirmation response = blockingStub.requestEmergencies(request);
+    private EmergenciesRequestConfirmation requestForEmergenciesSync(EmergenciesRequest request) {
+        EmergenciesRequestConfirmation response;
+        boolean loopSucceeded = false;
+        do {
+            response = blockingStub.requestEmergencies(request);
 
-        if (response.getRequestId().equals("-1"))
-        {
-            System.out.println("ERROR: Resend request in a while");
-            Random r = new Random();
-            try {
-                Thread.sleep((r.nextInt(5) + 1) * 200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (response.getRequestId().equals("-1")) {
+                System.out.println("ERROR: Resend request in a while");
+                waitRetransmissionTime();
             }
-            return requestForEmergenciesSync(request);
-        }
-        else
-        {
-            PrintAssignedFireTrucks(response);
-        }
+            else {
+                loopSucceeded = true;
+            }
+        } while (!loopSucceeded);
 
-        return response.getRequestId();
+        return response;
     }
 
-    public void releaseEmergenciesSync(String requestId) {
-        EmergenciesReleasing releaseRequest = EmergenciesReleasing.newBuilder().setRequestId(requestId).build();
-        blockingStub.releaseEmergencies(releaseRequest);
+    private void releaseEmergenciesSync(EmergenciesRequestConfirmation requestConfirmation) {
+        EmergenciesReleasing releaseRequest = EmergenciesReleasing.newBuilder()
+                .setRequestId(requestConfirmation.getRequestId())
+                .addAllAssignedTrucks(requestConfirmation.getAssignedTrucksList())
+                .build();
+
+        EmergenciesReleasingConfirmation releasingConfirmation;
+        boolean loopSucceeded = false;
+        do {
+            releasingConfirmation = blockingStub.releaseEmergencies(releaseRequest);
+
+            if (!releasingConfirmation.getSucceeded()) {
+                System.out.println("ERROR: Resend releasing in a while");
+                waitRetransmissionTime();
+            }
+            else {
+                loopSucceeded = true;
+            }
+        } while (!loopSucceeded);
     }
 
     public void shutdown() throws InterruptedException {
@@ -144,5 +115,25 @@ public class EmergenciesCoordinatorClient {
     private void PrintList(List<Integer> list) {
         list.forEach(entry -> System.out.print("\t" + entry));
         System.out.println();
+    }
+
+    private void waitAlertTime() {
+        Sleep(ClientProperties.getBaseAlertMultiplier(), ClientProperties.getMaxAlertMultiplier(), ClientProperties.getAlertTimeToMultiply());
+    }
+
+    private void waitRetransmissionTime() {
+        Sleep(ClientProperties.getBaseRetransmissionMultiplier(), ClientProperties.getMaxRetransmissionMultiplier(), ClientProperties.getRetransmissionTimeToMultiply());
+    }
+
+    private void Sleep(int base, int bound, int multiplier) {
+        try {
+            Thread.sleep(getNextRandom(base, bound, multiplier));
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+    private int getNextRandom(int base, int bound, int multiplier) {
+        return (random.nextInt(bound) + base) * multiplier;
     }
 }

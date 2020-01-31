@@ -23,7 +23,7 @@ public class RequestsGenerator {
     private LinkedList<Integer> GenerateBrigades() {
         LinkedList<Integer> brigades = new LinkedList<>();
         for (int i = 0; i < ClientProperties.getMaxBrigadeId(); i++) {
-            if (random.nextBoolean()){
+            if (random.nextDouble() > ClientProperties.getChooseBrigadeThreshold()){
                 brigades.add(i + 1);
             }
         }

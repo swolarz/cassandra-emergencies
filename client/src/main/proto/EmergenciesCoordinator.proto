@@ -52,7 +52,7 @@ message EmergenciesReleasing {
 }
 
 message EmergenciesReleasingConfirmation {
-    // empty message
+    bool Succeeded = 1;
 }
 
 message FireTruckAssignment {
