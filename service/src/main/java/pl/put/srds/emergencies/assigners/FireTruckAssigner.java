@@ -87,10 +87,12 @@ public class FireTruckAssigner {
 
             ft = getFreeFireTruck(brigadeId, typeId);
             Assignment a = repository.makeAssignment(ft, requestId);
-            if(!repository.hasFirstAssignment(a))
+            if(a == null || !repository.hasFirstAssignment(a))
             {
-                repository.rollbackAssignment(a);
                 ft = null;
+                if (a != null) {
+                    repository.rollbackAssignment(a);
+                }
             }
         } while(iterations < MAX_TRIES_IN_ASSIGNING_TRUCK && ft == null);
 
