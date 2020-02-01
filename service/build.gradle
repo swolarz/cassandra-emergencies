@@ -45,9 +45,9 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.10'
 }
 
-//test {
-//	useJUnitPlatform()
-//}
+test {
+	useJUnitPlatform()
+}
 
 application {
 	mainClassName = 'pl.put.srds.emergencies.EmergenciesApplication'
