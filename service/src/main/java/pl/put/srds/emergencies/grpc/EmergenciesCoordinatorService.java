@@ -1,12 +1,24 @@
 package pl.put.srds.emergencies.grpc;
 
 import io.grpc.stub.StreamObserver;
-import pl.put.srds.emergencies.generated.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import pl.put.srds.emergencies.assigners.FireTruckAssigner;
+import pl.put.srds.emergencies.generated.EmergenciesReleasing;
+import pl.put.srds.emergencies.generated.EmergenciesReleasingConfirmation;
+import pl.put.srds.emergencies.generated.EmergenciesRequest;
+import pl.put.srds.emergencies.generated.EmergenciesRequestConfirmation;
 
-import java.util.LinkedList;
-import java.util.Random;
 
-class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.EmergenciesCoordinatorGrpc.EmergenciesCoordinatorImplBase {
+@Service
+@Slf4j
+public class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.EmergenciesCoordinatorGrpc.EmergenciesCoordinatorImplBase {
+    private final FireTruckAssigner assigner;
+
+    public EmergenciesCoordinatorService(FireTruckAssigner assigner) {
+        this.assigner = assigner;
+    }
+
     @Override
     public void releaseEmergencies(EmergenciesReleasing request, StreamObserver<EmergenciesReleasingConfirmation> responseObserver) {
         responseObserver.onNext(handleReleaseEmergencies(request));
@@ -20,66 +32,13 @@ class EmergenciesCoordinatorService extends pl.put.srds.emergencies.generated.Em
     }
 
     private EmergenciesRequestConfirmation handleRequestEmergencies(EmergenciesRequest request) {
-        Random r  = new Random();
+        EmergenciesRequestConfirmation requestConfirmation = assigner.assignVehicles(request);
+        log.info(String.format("After handling request of id = %s", requestConfirmation.getRequestId()));
 
-        if (r.nextBoolean()) {
-            LinkedList<FireTruckAssignment> assignments = new LinkedList<>();
-
-            request.getGBABrigadesList().forEach(e ->
-                    assignments.add(FireTruckAssignment.newBuilder()
-                            .setBrigadeId(e)
-                            .setTruckId(2)
-                            .setTypeId(1)
-                            .build()));
-
-            request.getGCBABrigadesList().forEach(e ->
-                    assignments.add(FireTruckAssignment.newBuilder()
-                            .setBrigadeId(e)
-                            .setTruckId(2)
-                            .setTypeId(2)
-                            .build()));
-
-            request.getGLBABrigadesList().forEach(e ->
-                    assignments.add(FireTruckAssignment.newBuilder()
-                            .setBrigadeId(e)
-                            .setTruckId(2)
-                            .setTypeId(3)
-                            .build()));
-
-            request.getSCRtBrigadesList().forEach(e ->
-                    assignments.add(FireTruckAssignment.newBuilder()
-                            .setBrigadeId(e)
-                            .setTruckId(2)
-                            .setTypeId(4)
-                            .build()));
-
-            request.getSDBrigadesList().forEach(e ->
-                    assignments.add(FireTruckAssignment.newBuilder()
-                            .setBrigadeId(e)
-                            .setTruckId(2)
-                            .setTypeId(5)
-                            .build()));
-
-            request.getSRdBrigadesList().forEach(e ->
-                    assignments.add(FireTruckAssignment.newBuilder()
-                            .setBrigadeId(e)
-                            .setTruckId(2)
-                            .setTypeId(6)
-                            .build()));
-
-            return EmergenciesRequestConfirmation.newBuilder()
-                    .setRequestId("1")
-                    .addAllAssignedTrucks(assignments)
-                    .build();
-        }
-        else {
-            return EmergenciesRequestConfirmation.newBuilder()
-                    .setRequestId("-1")
-                    .build();
-        }
+        return requestConfirmation;
     }
 
     private EmergenciesReleasingConfirmation handleReleaseEmergencies(EmergenciesReleasing request) {
-        return EmergenciesReleasingConfirmation.newBuilder().build();
+        return assigner.releaseVehicles(request);
     }
 }

@@ -12,9 +12,9 @@ if __name__ == "__main__":
 
     print(" CREATE TABLE Assignments ( " +
           " TruckId int, " +
-          " RequestId UUID, " +
           " Timestamp timestamp, " +
-          " PRIMARY KEY ((TruckId, RequestId), Timestamp));")
+          " RequestId UUID, " +
+          " PRIMARY KEY ((TruckId), Timestamp, RequestId);")
 
     truck_id = 1
     for i in range(1, 1001):

@@ -2,18 +2,30 @@ package pl.put.srds.emergencies.grpc;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+
+@Component
+@Slf4j
 public class EmergenciesCoordinatorServer {
 
+    private final EmergenciesCoordinatorService emergenciesCoordinatorService;
     private final int port;
+
     private Server server;
 
-    public EmergenciesCoordinatorServer(int port)
-    {
+
+    public EmergenciesCoordinatorServer(EmergenciesCoordinatorService coordinatorService,
+                                        @Value("${emergencies.service.port}") int port) throws IOException {
+        this.emergenciesCoordinatorService = coordinatorService;
         this.port = port;
+
+        this.start();
     }
 
     public void blockThreadUntilShutdown() throws InterruptedException {
@@ -24,10 +36,10 @@ public class EmergenciesCoordinatorServer {
 
     public void start() throws IOException {
         server = ServerBuilder.forPort(port)
-                .addService(new EmergenciesCoordinatorService())
+                .addService(emergenciesCoordinatorService)
                 .build()
                 .start();
-        System.out.println("Server started, listening on " + port);
+        log.info("Server started, listening on " + port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

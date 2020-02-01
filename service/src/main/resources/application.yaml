@@ -5,3 +5,7 @@ cassandra:
     contactpoints: ${CASSANDRA_HOST}
     port: ${CASSANDRA_PORT}
     keyspace: emergencies
+
+emergencies:
+    service:
+        port: 12345
