@@ -6,14 +6,14 @@ if __name__ == "__main__":
     print(" CREATE TABLE FireTrucks ( " +
           " BrigadeId int, " +
           " TypeId int, " +
-          " IsAssigned boolean, " +
+          " Assigned boolean, " +
           " TruckId int, " +
           " PRIMARY KEY ((BrigadeId, TypeId), IsAssigned));")
 
     print(" CREATE TABLE Assignments ( " +
           " TruckId int, " +
           " Timestamp timestamp, " +
-          " RequestId UUID, " +
+          " RequestId text, " +
           " PRIMARY KEY ((TruckId), Timestamp, RequestId);")
 
     truck_id = 1
