@@ -8,7 +8,8 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyClass;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
+
 
 @PrimaryKeyClass
 @Data
@@ -19,7 +20,7 @@ public class AssignmentKey implements Serializable {
     private int truckId;
 
     @PrimaryKeyColumn(name = "Timestamp", ordinal = 1, type = PrimaryKeyType.CLUSTERED)
-    private Date timestamp;
+    private LocalDateTime timestamp;
 
     @PrimaryKeyColumn(name = "RequestId", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     private String requestId;
