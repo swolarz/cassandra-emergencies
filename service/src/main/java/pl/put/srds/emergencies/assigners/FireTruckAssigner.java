@@ -74,7 +74,7 @@ public class FireTruckAssigner {
             for (FireTruckAssignment fta : request.getAssignedTrucksList()) {
                 FireTruckKey ftk = new FireTruckKey();
                 ftk.setBrigadeId(fta.getBrigadeId());
-                ftk.setTypeId(fta.getTruckId());
+                ftk.setTypeId(fta.getTypeId());
 
                 FireTruck ft = new FireTruck();
                 ft.setKey(ftk);
