@@ -61,7 +61,7 @@ public class FireTruckAssigner {
                 assignVehicleAndAddToMessage(bId, 6, requestId, b);
             }
         } catch (UnableToAssignException e) {
-            log.error(String.format("Unable to process request due to: %s", e.getMessage()));
+            log.error(String.format("Unable to process request due to: %s", e.getMessage()), e);
             b.clear();
             b.setRequestId("-1");
         }
@@ -85,7 +85,7 @@ public class FireTruckAssigner {
             return EmergenciesReleasingConfirmation.newBuilder().setSucceeded(true).build();
         }
         catch (DataAccessException e) {
-            log.error(String.format("Unable to process release due to: %s", e.getMessage()));
+            log.error(String.format("Unable to process release due to: %s", e.getMessage()), e);
             return EmergenciesReleasingConfirmation.newBuilder().setSucceeded(false).build();
         }
     }
@@ -98,7 +98,7 @@ public class FireTruckAssigner {
                 ft = fireTruckRepository.findFirstByKeyBrigadeIdAndKeyTypeIdAndAssigned(brigadeId, typeId, false);
             }
             catch (CassandraInsufficientReplicasAvailableException | CassandraReadTimeoutException e) {
-                log.error(String.format("Unable to process request due to: %s", e.getMessage()));
+                log.error(String.format("Unable to process request due to: %s", e.getMessage()), e);
                 erroneousIterations++;
                 ft = null;
             }
@@ -133,7 +133,7 @@ public class FireTruckAssigner {
                 }
             }
             catch (DataAccessException e) {
-                log.error(String.format("Unable to process request due to: %s", e.getMessage()));
+                log.error(String.format("Unable to process request due to: %s", e.getMessage()), e);
                 iterations++;
                 ft = null;
             }
