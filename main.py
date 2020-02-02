@@ -8,13 +8,13 @@ if __name__ == "__main__":
           " TypeId int, " +
           " Assigned boolean, " +
           " TruckId int, " +
-          " PRIMARY KEY ((BrigadeId, TypeId), Assigned));")
+          " PRIMARY KEY ((BrigadeId, TypeId)));")
 
     print(" CREATE TABLE Assignments ( " +
           " TruckId int, " +
           " Timestamp timestamp, " +
           " RequestId text, " +
-          " PRIMARY KEY ((TruckId), Timestamp, RequestId);")
+          " PRIMARY KEY ((TruckId), Timestamp, RequestId));")
 
     truck_id = 1
     for i in range(1, 1001):
