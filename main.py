@@ -6,20 +6,20 @@ if __name__ == "__main__":
     print(" CREATE TABLE FireTrucks ( " +
           " BrigadeId int, " +
           " TypeId int, " +
-          " IsAssigned boolean, " +
+          " Assigned boolean, " +
           " TruckId int, " +
-          " PRIMARY KEY ((BrigadeId, TypeId), IsAssigned));")
+          " PRIMARY KEY ((BrigadeId, TypeId)));")
 
     print(" CREATE TABLE Assignments ( " +
           " TruckId int, " +
           " Timestamp timestamp, " +
-          " RequestId UUID, " +
-          " PRIMARY KEY ((TruckId), Timestamp, RequestId);")
+          " RequestId text, " +
+          " PRIMARY KEY ((TruckId), Timestamp, RequestId));")
 
     truck_id = 1
     for i in range(1, 1001):
         for j in range(1, 7):
-            print("insert into FireTrucks (BrigadeId, TypeId, IsAssigned, TruckId) values "
+            print("insert into FireTrucks (BrigadeId, TypeId, Assigned, TruckId) values "
                   + str.format(" ({0}, {1}, false, {2});", i, j, truck_id))
             truck_id += 1
 

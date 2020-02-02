@@ -20,13 +20,14 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
                         "where brigadeid = ?\n" +
                             "and typeid = ?;\n" +
                     "insert into assignments (truckid, requestid, timestamp)\n" +
-                        "values (?, ?, toTimestamp(now()));\n" +
+                        "values (?, ?, now());\n" +
             "APPLY BATCH;";
 
     private static final String RELEASE_ASSIGNMENT_CQL =
             "BEGIN BATCH\n" +
                     "delete from assignments\n" +
                         "where truckid = ?\n" +
+                            "and timestamp = ?\n" +
                             "and requestid = ?;\n" +
                     "update firetrucks set assigned = false\n" +
                         "where brigadeid = ?\n" +
@@ -82,8 +83,11 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
 
     @Override
     public boolean releaseAssignment(FireTruck fireTruck, String requestId) {
+        Assignment assignment = assignmentRepository.findFirstByKeyTruckIdAndKeyRequestId(fireTruck.getTruckId(), requestId);
+
         BoundStatement statement = releaseAssignmentStatement.bind(
                 fireTruck.getTruckId(),
+                assignment.getKey().getTimestamp(),
                 requestId,
                 fireTruck.getKey().getBrigadeId(),
                 fireTruck.getKey().getTypeId()
@@ -91,27 +95,4 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
 
         return cassandraTemplate.getCqlOperations().execute(statement);
     }
-
-    //    public Assignment makeAssignment(int truckId, int truckTypeId, int brigadeId, int requestId) {
-//        InsertOptions options = InsertOptions.builder().build();
-//        WriteResult result = cassandraTemplate.batchOps()
-//                .insert(new Assignment(), options)
-//                .execute();
-//        return null;
-//    }
-
-    //    public Assignment makeAssignment(int truckId, int requestId) {
-//
-//        try {
-//            EntityWriteResult<Assignment> result = cassandraTemplate.insert(new Assignment(), options);
-//            return result.getEntity();
-//        }
-//        catch (DataAccessException e) {
-//            log.warn("Failed to make assignment", e);
-//            return null;
-//        }
-//
-//        String rawInsert = "insert into assignments (truckid, requestid, timestamp) values (?, ?, toTimestamp(now())";
-//        return cqlTemplate.execute(rawInsert, truckId, requestId);
-//    }
 }
