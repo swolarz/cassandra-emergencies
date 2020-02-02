@@ -18,16 +18,16 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
             "BEGIN BATCH " +
                     "update firetrucks set assigned = true\n" +
                         "where brigadeid = ?\n" +
-                            "and timestamp = ?\n" +
                             "and typeid = ?;\n" +
                     "insert into assignments (truckid, requestid, timestamp)\n" +
-                        "values (?, ?, toTimestamp(now()));\n" +
+                        "values (?, ?, now());\n" +
             "APPLY BATCH;";
 
     private static final String RELEASE_ASSIGNMENT_CQL =
             "BEGIN BATCH\n" +
                     "delete from assignments\n" +
                         "where truckid = ?\n" +
+                            "and timestamp = ?\n" +
                             "and requestid = ?;\n" +
                     "update firetrucks set assigned = false\n" +
                         "where brigadeid = ?\n" +
