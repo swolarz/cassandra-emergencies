@@ -7,6 +7,7 @@ import org.springframework.data.cassandra.CassandraInsufficientReplicasAvailable
 import org.springframework.data.cassandra.CassandraReadTimeoutException;
 import org.springframework.stereotype.Service;
 import pl.put.srds.emergencies.assigners.exceptions.UnableToAssignException;
+import pl.put.srds.emergencies.assigners.exceptions.UnableToReleaseException;
 import pl.put.srds.emergencies.dbmodel.Assignment;
 import pl.put.srds.emergencies.dbmodel.FireTruck;
 import pl.put.srds.emergencies.dbmodel.FireTruckKey;
@@ -14,6 +15,8 @@ import pl.put.srds.emergencies.dbmodel.repository.EmergenciesRepository;
 import pl.put.srds.emergencies.dbmodel.repository.FireTruckRepository;
 import pl.put.srds.emergencies.generated.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -70,6 +73,7 @@ public class FireTruckAssigner {
     }
 
     public EmergenciesReleasingConfirmation releaseVehicles(EmergenciesReleasing request){
+        List<FireTruckAssignment> releasedTrucks = new ArrayList<>();
         try {
             for (FireTruckAssignment fta : request.getAssignedTrucksList()) {
                 FireTruckKey ftk = new FireTruckKey();
@@ -81,12 +85,19 @@ public class FireTruckAssigner {
                 ft.setTruckId(fta.getTruckId());
 
                 repository.releaseAssignment(ft, request.getRequestId());
+                releasedTrucks.add(fta);
             }
-            return EmergenciesReleasingConfirmation.newBuilder().setSucceeded(true).build();
+            return EmergenciesReleasingConfirmation.newBuilder()
+                    .setSucceeded(true)
+                    .addAllReleasedTrucks(releasedTrucks)
+                    .build();
         }
-        catch (DataAccessException e) {
+        catch (DataAccessException | UnableToReleaseException e) {
             log.error(String.format("Unable to process release due to: %s", e.getMessage()), e);
-            return EmergenciesReleasingConfirmation.newBuilder().setSucceeded(false).build();
+            return EmergenciesReleasingConfirmation.newBuilder()
+                    .setSucceeded(false)
+                    .addAllReleasedTrucks(releasedTrucks)
+                    .build();
         }
     }
 
@@ -125,11 +136,12 @@ public class FireTruckAssigner {
             ft = getFreeFireTruck(brigadeId, typeId);
             try {
                 Assignment a = repository.makeAssignment(ft, requestId);
-                if (a == null || !repository.hasFirstAssignment(a)) {
+                if (a == null) {
                     ft = null;
-                    if (a != null) {
-                        repository.rollbackAssignment(a);
-                    }
+                }
+                else if (!repository.hasFirstAssignment(a)) {
+                    ft = null;
+                    repository.rollbackAssignment(a);
                 }
             }
             catch (DataAccessException e) {

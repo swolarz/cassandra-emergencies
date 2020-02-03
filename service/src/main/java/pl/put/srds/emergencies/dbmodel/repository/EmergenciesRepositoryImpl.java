@@ -6,6 +6,7 @@ import com.datastax.driver.core.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.stereotype.Repository;
+import pl.put.srds.emergencies.assigners.exceptions.UnableToReleaseException;
 import pl.put.srds.emergencies.dbmodel.Assignment;
 import pl.put.srds.emergencies.dbmodel.FireTruck;
 
@@ -64,16 +65,30 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
 
         boolean batchApplied = cassandraTemplate.getCqlOperations().execute(statement);
 
-        if (!batchApplied)
+        if (!batchApplied) {
+            log.warn("Make assignment batch was not applied");
             return null;
+        }
 
         return assignmentRepository.findFirstByKeyTruckIdAndKeyRequestId(fireTruck.getTruckId(), requestId);
     }
 
     @Override
     public boolean hasFirstAssignment(Assignment assignment) {
-        Assignment firstAssignment = assignmentRepository.findFirstByKeyTruckId(assignment.getKey().getTruckId());
-        return (firstAssignment.getKey().getRequestId().equals(assignment.getKey().getRequestId()));
+        Assignment firstAssignment;
+
+        // check again - it's not normal situation
+        int iterations = 0;
+        do {
+            firstAssignment = assignmentRepository.findFirstByKeyTruckId(assignment.getKey().getTruckId());
+            iterations++;
+        } while(firstAssignment == null && iterations < 10);
+
+        if (firstAssignment == null) {
+            log.warn("First assignment is null");
+        }
+
+        return firstAssignment != null && (firstAssignment.getKey().getRequestId().equals(assignment.getKey().getRequestId()));
     }
 
     @Override
@@ -82,8 +97,19 @@ public class EmergenciesRepositoryImpl implements EmergenciesRepository {
     }
 
     @Override
-    public boolean releaseAssignment(FireTruck fireTruck, String requestId) {
-        Assignment assignment = assignmentRepository.findFirstByKeyTruckIdAndKeyRequestId(fireTruck.getTruckId(), requestId);
+    public boolean releaseAssignment(FireTruck fireTruck, String requestId) throws UnableToReleaseException {
+        Assignment assignment;
+
+        // check again - it's not normal situation
+        int iterations = 0;
+        do {
+            assignment = assignmentRepository.findFirstByKeyTruckIdAndKeyRequestId(fireTruck.getTruckId(), requestId);
+            iterations++;
+        } while(assignment == null && iterations < 10);
+
+        if (assignment == null) {
+            throw new UnableToReleaseException("Couldn't find given assignment");
+        }
 
         BoundStatement statement = releaseAssignmentStatement.bind(
                 fireTruck.getTruckId(),

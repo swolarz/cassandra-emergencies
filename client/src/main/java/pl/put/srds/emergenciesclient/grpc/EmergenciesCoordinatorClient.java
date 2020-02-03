@@ -64,14 +64,25 @@ public class EmergenciesCoordinatorClient {
                 .build();
 
         EmergenciesReleasingConfirmation releasingConfirmation;
+        List<FireTruckAssignment> vehiclesToRelease = requestConfirmation.getAssignedTrucksList();
         boolean loopSucceeded = false;
         do {
             releasingConfirmation = blockingStub.releaseEmergencies(releaseRequest);
             RequestCounter.increment();
 
             if (!releasingConfirmation.getSucceeded()) {
-                System.out.println("ERROR: Resend releasing in a while");
-                waitRetransmissionTime();
+                vehiclesToRelease.removeAll(releasingConfirmation.getReleasedTrucksList());
+
+                if (vehiclesToRelease.isEmpty()) {
+                    loopSucceeded = true;
+                } else {
+                    releaseRequest = EmergenciesReleasing.newBuilder()
+                            .setRequestId(requestConfirmation.getRequestId())
+                            .addAllAssignedTrucks(vehiclesToRelease)
+                            .build();
+                    System.out.println("ERROR: Resend releasing in a while");
+                    waitRetransmissionTime();
+                }
             }
             else {
                 loopSucceeded = true;
