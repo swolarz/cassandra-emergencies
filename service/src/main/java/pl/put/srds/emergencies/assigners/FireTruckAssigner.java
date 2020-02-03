@@ -67,6 +67,15 @@ public class FireTruckAssigner {
             log.error(String.format("Unable to process request due to: %s", e.getMessage()), e);
             b.clear();
             b.setRequestId("-1");
+
+            for (FireTruckAssignment fta : b.getAssignedTrucksList()) {
+                try {
+                    releaseTruck(fta, requestId);
+                } catch (UnableToReleaseException | DataAccessException releasingException) {
+                    log.error(String.format("Unable to process request due to: %s", releasingException.getMessage()), releasingException);
+                }
+            }
+            b.clearAssignedTrucks();
         }
 
         return b.build();
@@ -76,15 +85,7 @@ public class FireTruckAssigner {
         List<FireTruckAssignment> releasedTrucks = new ArrayList<>();
         try {
             for (FireTruckAssignment fta : request.getAssignedTrucksList()) {
-                FireTruckKey ftk = new FireTruckKey();
-                ftk.setBrigadeId(fta.getBrigadeId());
-                ftk.setTypeId(fta.getTypeId());
-
-                FireTruck ft = new FireTruck();
-                ft.setKey(ftk);
-                ft.setTruckId(fta.getTruckId());
-
-                repository.releaseAssignment(ft, request.getRequestId());
+                releaseTruck(fta, request.getRequestId());
                 releasedTrucks.add(fta);
             }
             return EmergenciesReleasingConfirmation.newBuilder()
@@ -99,6 +100,18 @@ public class FireTruckAssigner {
                     .addAllReleasedTrucks(releasedTrucks)
                     .build();
         }
+    }
+
+    private void releaseTruck(FireTruckAssignment fta, String requestId) throws UnableToReleaseException {
+        FireTruckKey ftk = new FireTruckKey();
+        ftk.setBrigadeId(fta.getBrigadeId());
+        ftk.setTypeId(fta.getTypeId());
+
+        FireTruck ft = new FireTruck();
+        ft.setKey(ftk);
+        ft.setTruckId(fta.getTruckId());
+
+        repository.releaseAssignment(ft, requestId);
     }
 
     private FireTruck getFreeFireTruck(int brigadeId, int typeId) throws UnableToAssignException {
