@@ -1,9 +1,7 @@
 
 cassandra:
-#    contactpoints: cassy1,cassy2,cassy3,cassy4
-#    port: 9042
-    contactpoints: ${CASSANDRA_HOST}
-    port: ${CASSANDRA_PORT}
+    contactpoints: localhost
+    port: 9042
     keyspace: emergencies
 
 emergencies:

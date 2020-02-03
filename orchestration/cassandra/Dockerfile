@@ -4,5 +4,7 @@ WORKDIR /usr/app
 
 COPY dbinit.cql datainit.sh ./
 
-ENTRYPOINT ["./datainit.sh"]
+ENV CASSY_HOST=localhost
+
+ENTRYPOINT ["/bin/bash", "-c", "./datainit.sh ${CASSY_HOST}"]
 

@@ -1,5 +1,5 @@
 CREATE KEYSPACE IF NOT EXISTS emergencies 
-  WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+  WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'lab-net' : 3 };
   USE emergencies;
  CREATE TABLE FireTrucks (  BrigadeId int,  TypeId int,  Assigned boolean,  TruckId int,  PRIMARY KEY ((BrigadeId, TypeId)));
  CREATE TABLE Assignments (  TruckId int,  Timestamp timeuuid,  RequestId text,  PRIMARY KEY ((TruckId), Timestamp, RequestId));
