@@ -3,6 +3,7 @@ package pl.put.srds.emergenciesclient.grpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import pl.put.srds.emergencies.generated.*;
+import pl.put.srds.emergenciesclient.RequestCounter;
 import pl.put.srds.emergenciesclient.configs.ClientProperties;
 import pl.put.srds.emergenciesclient.grpc.generator.RequestsGenerator;
 
@@ -42,6 +43,7 @@ public class EmergenciesCoordinatorClient {
         boolean loopSucceeded = false;
         do {
             response = blockingStub.requestEmergencies(request);
+            RequestCounter.increment();
 
             if (response.getRequestId().equals("-1")) {
                 System.out.println("ERROR: Resend request in a while");
@@ -65,6 +67,7 @@ public class EmergenciesCoordinatorClient {
         boolean loopSucceeded = false;
         do {
             releasingConfirmation = blockingStub.releaseEmergencies(releaseRequest);
+            RequestCounter.increment();
 
             if (!releasingConfirmation.getSucceeded()) {
                 System.out.println("ERROR: Resend releasing in a while");

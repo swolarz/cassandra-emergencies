@@ -7,6 +7,8 @@ import pl.put.srds.emergenciesclient.grpc.EmergenciesCoordinatorClient;
 public class EmergenciesClientApplication {
     public static void main(String[] args) {
 
+        RequestCounter.initialize();
+
         for (int i = 0; i < ClientProperties.getClientsThreadsAmount(); i++) {
             new Thread("Client" + i){
                 public void run(){
