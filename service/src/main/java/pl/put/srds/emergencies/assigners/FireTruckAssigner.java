@@ -115,15 +115,20 @@ public class FireTruckAssigner {
         int i = 0;
         do {
             succeeded = repository.releaseAssignment(ft, requestId);
+
+            if (!succeeded){
+                log.warn("Could not apply batch");
+            } else  {
+                break;
+            }
+
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            if (!succeeded){
-                log.warn("Could not apply batch");
-            }
+
 
             i++;
         }while(!succeeded && i < 10);
