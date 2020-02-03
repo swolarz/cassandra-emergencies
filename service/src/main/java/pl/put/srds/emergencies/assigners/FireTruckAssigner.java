@@ -111,7 +111,26 @@ public class FireTruckAssigner {
         ft.setKey(ftk);
         ft.setTruckId(fta.getTruckId());
 
-        repository.releaseAssignment(ft, requestId);
+        boolean succeeded = false;
+        int i = 0;
+        do {
+            succeeded = repository.releaseAssignment(ft, requestId);
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (!succeeded){
+                log.warn("Could not apply batch");
+            }
+
+            i++;
+        }while(!succeeded && i < 10);
+
+        if (!succeeded) {
+            throw new UnableToReleaseException("Batch cannot be applied!");
+        }
     }
 
     private FireTruck getFreeFireTruck(int brigadeId, int typeId) throws UnableToAssignException {
