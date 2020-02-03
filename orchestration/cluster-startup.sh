@@ -18,7 +18,7 @@ source hosts.sh
 #docker tag emergencies-service localhost:5000/emergencies-service
 #docker push localhost:5000/emergencies-service
 
-echo "Creating new network for service..."
+echo "Creating network for service..."
 docker network create --driver overlay --scope swarm cassandra-net
 
 echo "Deploying emergencies service stack..."

@@ -1,0 +1,3 @@
+cassandra:
+    contactpoints: cassy1,cassy2,cassy3,cassy4
+

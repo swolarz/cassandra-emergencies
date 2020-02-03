@@ -1,25 +1,41 @@
-version: "3"
+version: '3'
 
 services:
-#    emergencies-service:
-#        image: ${REGISTRY}:5000/emergencies-service
-#        networks:
-#            - cluster-net
-#        ports:
-#            - 12345:12345
-#        deploy:
-#            replicas: 4
-#            restart_policy:
-#                condition: on-failure
-#                max_attempts: 3
-#                delay: 30s
-#                window: 120s
+    emergencies-service:
+        image: swolarz/emergencies-service:1.0.0
+        environment:
+            SPRING_PROFILES_ACTIVE: prod
+        networks:
+            - cluster-net
+        ports:
+            - 12345:12345
+        deploy:
+            replicas: 0
+            restart_policy:
+                condition: on-failure
+                delay: 15s
+
+    emergencies-cassy-init:
+        image: swolarz/emergencies-cassy-init:1.0.0
+        environment:
+            CASSY_HOST: cassy1
+        networks:
+            - cluster-net
+        deploy:
+            replicas: 0
+            restart_policy:
+                condition: on-failure
+                delay: 10s
 
     cassy1:
         image: cassandra:3.11
         environment:
             CASSANDRA_CLUSTER_NAME: emergencies_cluster
-            CASSANDRA_BROADCAST_ADDRESS: "cassy1"
+            CASSANDRA_BROADCAST_ADDRESS: cassy1
+            CASSANDRA_SEEDS: cassy1,cassy2
+            CASSANDRA_DC: lab-net
+            CASSANDRA_RACK: rack1
+            CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
         networks:
             - cluster-net
         ports:
@@ -33,18 +49,23 @@ services:
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
+                delay: 20s
                 window: 120s
 
     cassy2:
         image: cassandra:3.11
         environment:
             CASSANDRA_CLUSTER_NAME: emergencies_cluster
-            CASSANDRA_BROADCAST_ADDRESS: "cassy2"
-            CASSANDRA_SEEDS: "cassy1"
+            CASSANDRA_BROADCAST_ADDRESS: cassy2
+            CASSANDRA_SEEDS: cassy1,cassy2
+            CASSANDRA_DC: lab-net
+            CASSANDRA_RACK: rack2
+            CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
         networks:
             - cluster-net
         volumes:
             - cassandra-data-2:/var/lib/cassandra
+        command: /bin/bash -c 'sleep 120 && /docker-entrypoint.sh cassandra -f'
         deploy:
             placement:
                 constraints:
@@ -53,18 +74,22 @@ services:
                 condition: on-failure
                 max_attempts: 3
                 delay: 20s
-                window: 120s
+                window: 120s 
 
     cassy3:
         image: cassandra:3.11
         environment:
             CASSANDRA_CLUSTER_NAME: emergencies_cluster
-            CASSANDRA_BROADCAST_ADDRESS: "cassy3"
-            CASSANDRA_SEEDS: "cassy1,cassy2"
+            CASSANDRA_BROADCAST_ADDRESS: cassy3
+            CASSANDRA_SEEDS: cassy1,cassy2
+            CASSANDRA_DC: lab-net
+            CASSANDRA_RACK: rack3
+            CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
         networks:
             - cluster-net
         volumes:
             - cassandra-data-3:/var/lib/cassandra
+        command: /bin/bash -c 'sleep 90 && /docker-entrypoint.sh cassandra -f'
         deploy:
             placement:
                 constraints:
@@ -72,19 +97,23 @@ services:
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
-                delay: 30s
+                delay: 20s
                 window: 120s
 
     cassy4:
         image: cassandra:3.11
         environment:
             CASSANDRA_CLUSTER_NAME: emergencies_cluster
-            CASSANDRA_BROADCAST_ADDRESS: "cassy4"
-            CASSANDRA_SEEDS: "cassy1,cassy2,cassy3"
+            CASSANDRA_BROADCAST_ADDRESS: cassy4
+            CASSANDRA_SEEDS: cassy1,cassy2
+            CASSANDRA_DC: lab-net
+            CASSANDRA_RACK: rack4
+            CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
         networks:
             - cluster-net
         volumes:
             - cassandra-data-4:/var/lib/cassandra
+        command: /bin/bash -c 'sleep 150 && /docker-entrypoint.sh cassandra -f'
         deploy:
             placement:
                 constraints:
@@ -92,7 +121,7 @@ services:
             restart_policy:
                 condition: on-failure
                 max_attempts: 3
-                delay: 25s
+                delay: 20s
                 window: 120s
 
 volumes:

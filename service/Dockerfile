@@ -11,5 +11,7 @@ FROM openjdk:11-jre-slim
 
 COPY --from=build /usr/src/app/build/libs/emergencies-*.jar /usr/app/emergencies.jar
 
+ENV SPRING_PROFILES_ACTIVE=dev
+
 EXPOSE 12345
-ENTRYPOINT ["java", "-jar", "/usr/app/emergencies.jar"]
+ENTRYPOINT ["/bin/bash", "-c", "java -jar /usr/app/emergencies.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}"]
