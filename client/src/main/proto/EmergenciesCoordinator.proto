@@ -53,6 +53,9 @@ message EmergenciesReleasing {
 
 message EmergenciesReleasingConfirmation {
     bool Succeeded = 1;
+
+    // succeeded unassigned trucks
+    repeated FireTruckAssignment ReleasedTrucks = 2;
 }
 
 message FireTruckAssignment {

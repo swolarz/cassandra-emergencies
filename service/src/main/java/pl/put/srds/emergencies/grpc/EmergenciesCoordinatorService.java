@@ -32,13 +32,26 @@ public class EmergenciesCoordinatorService extends pl.put.srds.emergencies.gener
     }
 
     private EmergenciesRequestConfirmation handleRequestEmergencies(EmergenciesRequest request) {
+        log.info("Before handling request");
         EmergenciesRequestConfirmation requestConfirmation = assigner.assignVehicles(request);
-        log.info(String.format("After handling request of id = %s", requestConfirmation.getRequestId()));
+        if (!requestConfirmation.getRequestId().equals("-1")) {
+            log.info(String.format("After succeeded handling request of id = %s", requestConfirmation.getRequestId()));
+        } else {
+            log.error(String.format("After failed handling request of id = %s", requestConfirmation.getRequestId()));
+        }
 
         return requestConfirmation;
     }
 
     private EmergenciesReleasingConfirmation handleReleaseEmergencies(EmergenciesReleasing request) {
-        return assigner.releaseVehicles(request);
+        log.info(String.format("Before handling release of id = %s", request.getRequestId()));
+        EmergenciesReleasingConfirmation response =  assigner.releaseVehicles(request);
+        if (response.getSucceeded()) {
+            log.info(String.format("After succeeded handling release of id = %s", request.getRequestId()));
+        } else {
+            log.error(String.format("After failed handling release of id = %s", request.getRequestId()));
+        }
+
+        return response;
     }
 }
